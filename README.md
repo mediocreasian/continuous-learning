@@ -12,6 +12,7 @@ Feel free to explore — especially if you're curious about the stack I've been 
 3. [Authentik Setup](vps-setup.md)  
 4. [Grafana Setup](monitoring-setup.md)  
 5. [SonarQube Setup](sonarqube-ci-setup.md)  
+6. [Uptime Kuma Setup](uptime-kuma-setup.md)  
 ---
 
 If you spot any mistakes or have suggestions, feel free to open a ticket — I’ll review and update it accordingly.  :) 
