@@ -11,8 +11,9 @@ Feel free to explore — especially if you're curious about the stack I've been 
 2. [Traefik Setup](traefik-setup.md)  
 3. [Authentik Setup](vps-setup.md)  
 4. [Grafana Setup](monitoring-setup.md)  
-5. [SonarQube Setup](sonarqube-ci-setup.md)  
-6. [Uptime Kuma Setup](uptime-kuma-setup.md)  
+5. [SonarQube CI Setup](sonarqube-ci-setup.md)  
+6. [Uptime Kuma Setup](uptime-kuma-setup.md) 
+7. [Docker Mail Server Setup](docker-mail-server-setup.md)  
 ---
 
 If you spot any mistakes or have suggestions, feel free to open a ticket — I’ll review and update it accordingly.  :) 
