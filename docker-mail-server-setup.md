@@ -70,40 +70,48 @@ SSL_KEY_PATH=/etc/letsencrypt/live/mail.exeltan.com/privkey.pem
 
 ---
 
-# 3. SSL Certificates (Manual DNS Challenge)
+# 3. SSL Certificates (Cloudflare DNS Challenge Automation)
 
-Manual DNS-01 validation used:
+Automatic renewal via Cloudflare API:
+
+## Cloudflare API Token
+
+* Token created with permission to edit DNS zone for `exeltan.com`.
+* Saved at `/root/.secrets/certbot/cloudflare.ini` with permissions `600`.
+
+## Certbot Command
 
 ```bash
-sudo certbot certonly --manual --preferred-challenges dns -d mail.exeltan.com
+sudo certbot certonly \
+  --dns-cloudflare \
+  --dns-cloudflare-credentials /root/.secrets/certbot/cloudflare.ini \
+  -d mail.exeltan.com
 ```
 
-During certificate request, Certbot prompted to create a DNS TXT Record:
+> Certificate automatically renewed and installed to `/etc/letsencrypt/live/mail.exeltan.com/`.
 
-| Type | Name                   | Content                        | TTL  | Proxy    |
-| :--- | :--------------------- | :----------------------------- | :--- | :------- |
-| TXT  | `_acme-challenge.mail` | `<random_string_from_certbot>` | Auto | DNS Only |
+## Auto Renewal Setup
 
-Once validated, certbot issued:
+Added to `root` crontab (`sudo crontab -e`):
 
-* `/etc/letsencrypt/live/mail.exeltan.com/fullchain.pem`
-* `/etc/letsencrypt/live/mail.exeltan.com/privkey.pem`
+```bash
+0 3 * * * certbot renew --dns-cloudflare --dns-cloudflare-credentials /root/.secrets/certbot/cloudflare.ini --post-hook "docker restart mailserver"
+```
 
-Mounted into container as read-only.
-
-> Note: Certificate must be manually renewed every 90 days unless automated.
+This renews nightly at 3AM, and restarts mailserver if cert is renewed.
 
 ---
 
 # 4. Cloudflare DNS Settings
 
-| Type | Name              | Content                          | TTL             | Proxy    |
-| :--- | :---------------- | :------------------------------- | :-------------- | :------- |
-| A    | `mail`            | `<YOUR_IP>`                      | Auto            | DNS Only |
-| MX   | `@`               | `mail.exeltan.com`               | Auto            | DNS Only |
-| TXT  | `@`               | `v=spf1 ip4:<YOUR_IP> -all`      | Auto            | DNS Only |
-| TXT  | `mail._domainkey` | (DKIM Public Key - see below)    | Auto            | DNS Only |
-| TXT  | `_dmarc`          | *(Optional — Not Yet Added)*     | *(Recommended)* | DNS Only |
+| Type | Name              | Content                                             | TTL  | Proxy    |
+| :--- | :---------------- | :-------------------------------------------------- | :--- | :------- |
+| A    | `mail`            | `<YOUR IP>`                                         | Auto | DNS Only |
+| MX   | `@`               | `mail.exeltan.com`                                  | Auto | DNS Only |
+| TXT  | `_dmarc`          | `v=DMARC1; p=none; rua=mailto:your-email@gmail.com` | Auto | DNS Only |
+| TXT  | `@`               | `v=spf1 ip4:<YOUR IP> -all`                    | Auto | DNS Only |
+| TXT  | `mail._domainkey` | (DKIM Public Key - see below)                       | Auto | DNS Only |
+
 
 ---
 
@@ -169,22 +177,20 @@ Things done After this:
 
 # 8. Summary of Success
 
-| Feature              | Status                         |
-| :------------------- | :----------------------------- |
-| SMTP 587 Submission  | Working                        |
-| SPF Policy           | Set and Validated              |
-| DKIM Signing         | Working                        |
-| TLS Encryption       | Working (Let's Encrypt Cert)   |
-| Gmail Inbox Delivery | Success                        |
+| Feature                | Status                         |
+| :-------------------   | :----------------------------- |
+| SMTP 587 Submission    | Working                        |
+| SPF Policy             | Set and Validated              |
+| DKIM Signing           | Working                        |
+| TLS Encryption         | Working (Let's Encrypt Cert)   |
+| Gmail Inbox Delivery   | Success                        |
+| Automated Cert Renewal |  Enabled                       |
 
 ---
-
 
 # Future Improvements
 
-* Automate Let's Encrypt renewal (IMPORTANT)
-* Create a DMARC record: `v=DMARC1; p=none; rua=mailto:your-email@gmail.com`
-* Tighten DMARC policy to "quarantine" or "reject" for stricter enforcement
-* Monitor mail logs with Grafana / Prometheus (optional)
+* [ ] Implement email monitoring with Grafana / Prometheus
 
 ---
+
