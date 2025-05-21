@@ -14,6 +14,7 @@ Feel free to explore — especially if you're curious about the stack I've been 
 5. [SonarQube CI Setup](sonarqube-ci-setup.md)  
 6. [Uptime Kuma Setup](uptime-kuma-setup.md) 
 7. [Docker Mail Server Setup](docker-mail-server-setup.md)  
+8. [Trillium Setup](trillium-setup.md)  
 ---
 
 If you spot any mistakes or have suggestions, feel free to open a ticket — I’ll review and update it accordingly.  :) 
